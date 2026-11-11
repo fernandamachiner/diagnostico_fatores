@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>6 Eixos Estratégicos</title>
+<title>Diagnóstico Situacional Territorial</title>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" type="image/png" href="assets/logo-picaps.png">
 </head>
@@ -13,14 +13,20 @@
   <div class="topo-marca">
     <div class="topo-titulo-linha">
       <img src="assets/logo-picaps.png" alt="Logo PICAPS — Plataforma de Inteligência Cooperativa com a Atenção Primária à Saúde" class="topo-logo-picaps">
-      <span class="topo-titulo">6 Eixos Estratégicos</span>
+      <span class="topo-selo">Diagnóstico</span>
+      <span class="topo-titulo">Diagnóstico Situacional Territorial</span>
     </div>
-    <span class="topo-subtitulo">Conectados aos Objetivos de Desenvolvimento Sustentável</span>
-    <div class="territorio-barra">
-      <label class="territorio-seletor-rotulo" for="seletor-territorio">Território</label>
-      <select class="territorio-seletor" id="seletor-territorio" aria-describedby="territorio-status"></select>
+    <span class="topo-subtitulo">6 Eixos Estratégicos conectados aos Objetivos de Desenvolvimento Sustentável</span>
+    <div class="territorio-cartao">
+      <div class="territorio-barra">
+        <span class="territorio-pino" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5c-3.9 0-7 3-7 6.9 0 5.1 7 12.1 7 12.1s7-7 7-12.1c0-3.9-3.1-6.9-7-6.9z" fill="#158A8A"/><circle cx="12" cy="9.4" r="2.7" fill="#fff"/></svg>
+        </span>
+        <label class="territorio-seletor-rotulo" for="seletor-territorio">Território em análise</label>
+        <select class="territorio-seletor" id="seletor-territorio" aria-describedby="territorio-status"></select>
+      </div>
+      <div class="territorio-status" id="territorio-status" role="status" aria-live="polite">Carregando dados do território…</div>
     </div>
-    <div class="territorio-status" id="territorio-status" role="status" aria-live="polite">Carregando dados do território…</div>
   </div>
 </header>
 
@@ -67,7 +73,7 @@
 <path d="M 30.00 100.00 A 70 70 0 0 1 65.00 39.38" fill="none" stroke="url(#grad-anel-5)" stroke-width="7" stroke-linecap="round"/>
 <circle cx="39.38" cy="65.00" r="2.6" fill="#ffffff" stroke="#dfe4e8" stroke-width="0.5"/>
 <circle cx="100" cy="100" r="36" fill="url(#grad-hub)" stroke="#e7ebee" stroke-width="0.5"/>
-<text x="100" y="94.8" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-weight="800" font-size="7.6" fill="#23303d">6 Eixos</text><text x="100" y="106.14" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-weight="800" font-size="7.6" fill="#3c4a56" letter-spacing="0.2">Estratégicos</text><text x="100" y="112.67" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="3.3" fill="#7c8b98">Conectados aos ODS</text>
+<text x="100" y="87.2" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-weight="800" font-size="3.4" fill="#158A8A" letter-spacing="0.6">DIAGNÓSTICO</text><g id="hub-territorio"><text x="100" y="102.6" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-weight="800" font-size="7.6" fill="#23303d">Território</text></g><text x="100" y="116.4" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="3.3" fill="#7c8b98">6 Eixos · ODS</text>
 <g class="eixo-grafico" data-eixo="1"><g class="eixo-grafico-sombra" filter="url(#sombra-eixo)"><circle cx="65.00" cy="39.38" r="28" fill="url(#grad-eixo-1)"/></g><g transform="translate(65.00 26.34)">
       <g stroke="#ffffff" stroke-width="1.15" fill="none" stroke-linecap="round" stroke-linejoin="round">
         <path d="M -3 -4.4 L -3 -6.2 C -3 -7.4 -2.1 -8.3 -1 -8.3 L 1 -8.3 C 2.1 -8.3 3 -7.4 3 -6.2 L 3 -4.4" />

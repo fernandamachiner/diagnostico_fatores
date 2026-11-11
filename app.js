@@ -157,7 +157,44 @@
     }
   }
 
+  // nome do território ativo no centro da roda (quebra em até 2 linhas e
+  // reduz a fonte para caber no círculo central, de raio 36)
+  var hubTerritorio = document.getElementById("hub-territorio");
+  function atualizarHubTerritorio() {
+    if (!hubTerritorio) return;
+    var nome = territorio.rotulo || "Selecione";
+    var linhas = [nome];
+    if (nome.length > 11) {
+      var palavras = nome.split(/\s+/), melhor = null;
+      for (var i = 1; i < palavras.length; i++) {
+        var a = palavras.slice(0, i).join(" "), b = palavras.slice(i).join(" ");
+        var m = Math.max(a.length, b.length);
+        if (!melhor || m < melhor.m) melhor = { m: m, l: [a, b] };
+      }
+      if (melhor) linhas = melhor.l;
+    }
+    var maior = Math.max.apply(null, linhas.map(function (l) { return l.length; }));
+    var tam = Math.min(7.6, 58 / (maior * 0.56));
+    var passo = tam * 1.18;
+    var y0 = 100 + tam * 0.35 - (linhas.length - 1) * passo / 2;
+    var ns = "http://www.w3.org/2000/svg";
+    while (hubTerritorio.firstChild) hubTerritorio.removeChild(hubTerritorio.firstChild);
+    linhas.forEach(function (l, k) {
+      var t = document.createElementNS(ns, "text");
+      t.setAttribute("x", "100");
+      t.setAttribute("y", (y0 + k * passo).toFixed(2));
+      t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-family", "Segoe UI, Arial, sans-serif");
+      t.setAttribute("font-weight", "800");
+      t.setAttribute("font-size", tam.toFixed(2));
+      t.setAttribute("fill", "#23303d");
+      t.textContent = l;
+      hubTerritorio.appendChild(t);
+    });
+  }
+
   function atualizarStatusTerritorio() {
+    atualizarHubTerritorio();
     territorioStatus.className = "territorio-status territorio-" + territorio.estado;
     territorioStatus.innerHTML = "";
     territorioStatus.removeAttribute("title");
