@@ -174,7 +174,7 @@
       if (melhor) linhas = melhor.l;
     }
     var maior = Math.max.apply(null, linhas.map(function (l) { return l.length; }));
-    var tam = Math.min(7.6, 58 / (maior * 0.56));
+    var tam = Math.min(9, 60 / (maior * 0.56));
     var passo = tam * 1.18;
     var y0 = 100 + tam * 0.35 - (linhas.length - 1) * passo / 2;
     var ns = "http://www.w3.org/2000/svg";
