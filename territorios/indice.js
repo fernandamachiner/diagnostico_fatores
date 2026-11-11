@@ -47,6 +47,14 @@ window.TERRITORIOS_INDICE = {
       uf: "DF",
       situacao: "diagnostico",
       arquivo: "territorios/distrito-federal.js"
+    },
+    {
+      id: "rondonia",
+      rotulo: "Rondônia",
+      tipo: "unidade federativa (52 municípios)",
+      uf: "RO",
+      situacao: "diagnostico",
+      arquivo: "territorios/rondonia.js"
     }
   ]
 };
