@@ -75,8 +75,10 @@ html, body {
 }
 
 .topo-subtitulo {
-  font-size: clamp(12px, 1.6vw, 15px);
-  color: #5b6b78;
+  font-size: clamp(14px, 1.9vw, 18px);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #158A8A;
 }
 
 /* selo que identifica a página como Diagnóstico Situacional */
