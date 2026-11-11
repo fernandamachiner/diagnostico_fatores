@@ -1,0 +1,836 @@
+:root {
+  --cor-texto: #23303d;
+  --cor-fundo: #f4f6f8;
+  --cor-cartao: #ffffff;
+  --sombra: 0 6px 18px rgba(20, 30, 40, 0.10);
+  --sombra-forte: 0 14px 34px rgba(20, 30, 40, 0.22);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  color: var(--cor-texto);
+  font-family: "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
+  /* Plano de fundo próprio do Diagnóstico Situacional, distinto da página
+     de Fatores (que usa mapa-múndi e trilhas de circuito):
+     1) faixa superior em tom petróleo, muito suave, que ancora o cabeçalho;
+     2) grade fina de coordenadas, tipo carta territorial (comum às duas
+        páginas, mantém a referência visual);
+     3) curvas de nível (relevo topográfico), remetendo à leitura do
+        território - assets/curvas-nivel-fundo.svg. */
+  background-color: #f2f5f4;
+  background-image:
+    linear-gradient(180deg, rgba(21, 138, 138, 0.10) 0, rgba(21, 138, 138, 0.03) 340px, transparent 520px),
+    linear-gradient(rgba(35, 48, 61, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35, 48, 61, 0.045) 1px, transparent 1px),
+    linear-gradient(rgba(35, 48, 61, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35, 48, 61, 0.08) 1px, transparent 1px),
+    url("assets/curvas-nivel-fundo.svg");
+  background-size:
+    100% 100%, 42px 42px, 42px 42px, 210px 210px, 210px 210px,
+    cover;
+  background-position:
+    0 0, 0 0, 0 0, 0 0, 0 0,
+    center center;
+  background-repeat:
+    no-repeat, repeat, repeat, repeat, repeat,
+    no-repeat;
+  background-attachment: fixed;
+}
+
+.topo {
+  padding: 22px 20px 6px;
+  text-align: center;
+}
+
+.topo-marca {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.topo-titulo-linha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.topo-logo-picaps {
+  height: clamp(86.7px, 12.75vw, 122.4px);
+  width: auto;
+  display: block;
+}
+
+.topo-titulo {
+  margin-top: clamp(10px, 1.6vw, 18px); /* respiro entre a marca PICAPS e o título */
+  font-size: clamp(14.7px, 2.3vw, 21.4px);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.topo-subtitulo {
+  font-size: clamp(12px, 1.6vw, 15px);
+  color: #5b6b78;
+}
+
+/* selo que identifica a página como Diagnóstico Situacional */
+.topo-selo {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #fff;
+  background: #158A8A;
+  border-radius: 20px;
+  padding: 3px 12px;
+  margin-top: 2px;
+}
+
+#app {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 4px 16px 60px;
+}
+
+.tela { display: none; }
+.tela-ativa { display: block; animation: aparecer 0.25s ease; }
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Layout de uma tela só: roda + fatores lado a lado ---------- */
+
+.layout-eixos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px 28px;
+}
+
+.coluna-roda {
+  flex: 1 1 640px;
+  max-width: 640px;
+  min-width: 300px;
+  transition: max-width 0.35s ease, flex-basis 0.35s ease;
+}
+
+.layout-eixos.tem-selecao .coluna-roda {
+  flex: 0 1 360px;
+  max-width: 360px;
+}
+
+.coluna-fatores {
+  flex: 0 1 0%;
+  min-width: 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: max-width 0.35s ease, opacity 0.25s ease;
+}
+
+.layout-eixos.tem-selecao .coluna-fatores {
+  flex: 1 1 480px;
+  max-width: 720px;
+  min-width: 300px;
+  opacity: 1;
+  overflow: visible;
+  pointer-events: auto;
+}
+
+/* em telas estreitas, empilha (roda em cima, fatores embaixo) em vez de
+   tentar manter as duas colunas lado a lado */
+@media (max-width: 760px) {
+  .layout-eixos.tem-selecao .coluna-roda {
+    flex-basis: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  .layout-eixos.tem-selecao .coluna-fatores {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
+}
+
+/* ---------- Nível 1: roda dos eixos ---------- */
+
+.roda-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 6px;
+}
+
+.roda {
+  position: relative;
+  width: min(82vmin, 640px);
+  height: min(82vmin, 640px);
+  max-width: 100%;
+}
+
+.roda-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: block;
+}
+
+/* botão de eixo: overlay transparente e clicável posicionado exatamente
+   sobre o círculo correspondente na arte SVG (ver coordenadas em app.js).
+   Ele mesmo não tem nenhum efeito visual de hover/foco/seleção (sem anel,
+   sem sombra, sem scale) - o destaque visual inteiro acontece na própria
+   imagem do eixo dentro do SVG (.eixo-grafico / classe "ativo", ver
+   app.js), tanto ao passar o mouse quanto ao clicar. O botão só precisa
+   ficar por cima (z-index) pra continuar capturando o clique/hover. */
+.eixo-botao {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28%;
+  height: 28%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+}
+
+.eixo-botao.selecionado {
+  z-index: 6;
+}
+
+.eixo-grafico {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: scale(1);
+  transition: transform 0.3s ease;
+}
+
+.eixo-grafico.ativo {
+  transform: scale(1.16);
+}
+
+.eixo-grafico.ativo .eixo-grafico-sombra {
+  filter: url(#sombra-eixo-ativo);
+}
+
+.guia-instrucoes {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 480px;
+  margin: 6px auto 0;
+  padding: 12px 16px;
+  border: 1px dashed #c3ccd4;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  text-align: left;
+}
+
+.guia-instrucoes-icone {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  margin-top: 2px;
+}
+
+.guia-instrucoes-icone svg { width: 100%; height: 100%; display: block; }
+
+.guia-instrucoes strong {
+  display: block;
+  font-size: 12.5px;
+  letter-spacing: 0.2px;
+  margin-bottom: 2px;
+}
+
+.guia-instrucoes p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #5b6b78;
+  line-height: 1.45;
+}
+
+/* ---------- Nível 2: fatores de um eixo ---------- */
+
+.btn-voltar {
+  border: none;
+  background: none;
+  color: #2f6fb0;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 0 14px;
+  font-weight: 600;
+}
+.btn-voltar:hover { text-decoration: underline; }
+
+.eixo-cabecalho {
+  border-radius: 16px;
+  padding: 20px 24px;
+  color: #fff;
+  margin-bottom: 22px;
+  box-shadow: var(--sombra);
+}
+
+.eixo-cabecalho .eixo-tag {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.eixo-cabecalho h2 {
+  margin: 4px 0 6px;
+  font-size: clamp(20px, 3vw, 28px);
+}
+
+.eixo-cabecalho p {
+  margin: 0;
+  font-size: 14px;
+  max-width: 640px;
+}
+
+.grade-fatores {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.fator-botao {
+  background: var(--cor-cartao);
+  border: 1px solid #e3e8ec;
+  border-radius: 14px;
+  padding: 14px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.fator-botao:hover,
+.fator-botao:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: var(--sombra);
+  border-color: transparent;
+}
+
+.fator-icone-badge {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fator-icone-badge img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+}
+
+/* sombra elíptica sob o ícone (que já é desenhado como um pino de mapa),
+   reforçando a leitura de "marcador cravado no território" */
+.fator-icone-badge::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  width: 42%;
+  height: 7px;
+  transform: translateX(-50%);
+  background: rgba(20, 30, 40, 0.16);
+  border-radius: 50%;
+  filter: blur(1.5px);
+}
+
+.fator-nome {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--cor-texto);
+}
+
+.fator-ods-selo {
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  border-radius: 20px;
+  padding: 2px 9px;
+}
+
+/* ---------- Nível 3: popup ---------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 22, 30, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.overlay[hidden] { display: none; }
+
+.popup {
+  background: #fff;
+  border-radius: 18px;
+  /* largura ampliada para leitura confortável dos diagnósticos */
+  max-width: 680px;
+  width: 100%;
+  padding: 30px 26px 26px;
+  position: relative;
+  text-align: center;
+  box-shadow: var(--sombra-forte);
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.popup-fechar {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: none;
+  background: none;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  color: #8a97a3;
+}
+.popup-fechar:hover { color: #23303d; }
+
+.popup-icones-trio {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.popup-icone-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.popup-icone-mini {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+}
+
+.popup-icone-legenda {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #fff;
+  border-radius: 20px;
+  padding: 2px 10px;
+  letter-spacing: 0.2px;
+}
+
+.popup-legenda-verde   { background: #4C9F38; }
+.popup-legenda-amarela { background: #E8B71B; color: #3a2c00; }
+.popup-legenda-vermelha{ background: #D8291C; }
+
+.popup-ods {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  border-radius: 20px;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+}
+
+.popup h3 {
+  margin: 0 0 12px;
+  font-size: 19px;
+}
+
+.popup p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #3c4a56;
+}
+
+/* definição de referência (dado metodológico, comum a todos os territórios) */
+.popup .popup-definicao {
+  font-size: 13px;
+  font-style: italic;
+  color: #5b6b78;
+  max-width: 560px;
+  margin: 0 auto 4px;
+}
+
+/* diagnóstico situacional do território ativo */
+.popup-diagnostico {
+  text-align: left;
+  margin-top: 18px;
+  border-top: 1px solid #e3e8ec;
+  padding-top: 14px;
+}
+
+.popup .popup-territorio {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #5b6b78;
+  margin-bottom: 8px;
+}
+
+.popup-texto p + p { margin-top: 10px; }
+
+.popup-aviso {
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  background: #f4f6f8;
+  color: #3c4a56;
+  border: 1px dashed #c3ccd4;
+}
+.popup-aviso.aviso-erro { background: #fdecea; border-color: #e8a29b; color: #7a1d14; }
+
+.popup-referencias { margin-top: 14px; }
+.popup-ref-bloco + .popup-ref-bloco { margin-top: 10px; }
+
+.popup h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #23303d;
+}
+
+.popup-ref-bloco ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #5b6b78;
+}
+
+.popup-relacionados { margin-top: 14px; }
+
+.popup-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.popup-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid #c3ccd4;
+  background: #fff;
+  border-radius: 20px;
+  padding: 3px 10px 3px 3px;
+  font-size: 12px;
+  color: #23303d;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.popup-chip:hover,
+.popup-chip:focus-visible { background: #f4f6f8; }
+
+.popup-chip-id {
+  color: #fff;
+  font-weight: 800;
+  font-size: 10.5px;
+  border-radius: 20px;
+  padding: 2px 7px;
+}
+
+.popup-voltar {
+  display: block;
+  margin: 16px 0 0;
+  border: none;
+  background: none;
+  color: #2f6fb0;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+}
+.popup-voltar[hidden] { display: none; }
+.popup-voltar:hover { text-decoration: underline; }
+
+/* cartão do território em análise, no cabeçalho */
+.territorio-cartao {
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #d5dfdf;
+  border-left: 5px solid #158A8A;
+  border-radius: 14px;
+  box-shadow: var(--sombra);
+  padding: 10px 18px 8px;
+  max-width: 100%;
+}
+
+.territorio-barra {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 10px;
+  max-width: 100%;
+}
+.territorio-pino { display: inline-flex; width: 22px; height: 22px; }
+.territorio-pino svg { width: 100%; height: 100%; }
+.territorio-seletor-rotulo {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #3c4a56;
+}
+.territorio-seletor {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #23303d;
+  background: #fff;
+  border: 1px solid #b8c3cc;
+  border-radius: 10px;
+  padding: 7px 12px;
+  min-width: 220px;
+  max-width: 100%;
+  cursor: pointer;
+}
+.territorio-seletor:focus-visible { outline: 3px solid #2f6fb0; outline-offset: 2px; }
+.territorio-seletor:disabled { cursor: not-allowed; opacity: 0.6; }
+
+/* faixa de identificação do território ativo, no cabeçalho */
+.territorio-status {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #3c4a56;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 8px;
+}
+.territorio-status.territorio-erro {
+  color: #7a1d14;
+  background: #fdecea;
+  border: 1px solid #e8a29b;
+  border-radius: 10px;
+  padding: 6px 12px;
+  max-width: 640px;
+}
+.territorio-selo {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  background: #23303d;
+  color: #fff;
+  border-radius: 20px;
+  padding: 2px 9px;
+}
+.territorio-selo-simulado { background: #8a4b00; }
+.territorio-selo-sem-dados { background: #5b6b78; }
+.territorio-alerta {
+  font-size: 12px;
+  color: #7a4b00;
+  background: #fff4dc;
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+
+/* ---------- Rodapé de conceitos (borda inferior da imagem de referência) ---------- */
+
+.rodape-conceitos {
+  display: grid;
+  grid-template-columns: 1.15fr 1.4fr 1fr;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.rodape-cartao {
+  background: var(--cor-cartao);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: var(--sombra);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rodape-cartao strong {
+  display: block;
+  font-size: 13.5px;
+  letter-spacing: 0.2px;
+  margin-bottom: 3px;
+}
+
+.rodape-conectados p {
+  margin: 0;
+  font-size: 12px;
+  color: #5b6b78;
+  line-height: 1.4;
+}
+
+.rodape-icone {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+}
+
+.rodape-icone svg { width: 100%; height: 100%; display: block; }
+
+.rodape-principios {
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rodape-principio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.rodape-principio .rodape-icone {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 2px;
+}
+
+.rodape-principio strong {
+  font-size: 11.5px;
+  margin: 0;
+}
+
+.rodape-principio span {
+  font-size: 10.5px;
+  color: #5b6b78;
+  line-height: 1.3;
+}
+
+.rodape-ods-agenda {
+  background: #17222c;
+  color: #fff;
+}
+
+.rodape-ods-agenda strong { color: #fff; }
+
+.rodape-ods-agenda p {
+  margin: 0;
+  font-size: 11.5px;
+  color: #c3ccd4;
+  line-height: 1.4;
+}
+
+.rodape-selo-ods {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+}
+
+.rodape-selo-ods svg { width: 100%; height: 100%; display: block; }
+
+@media (max-width: 900px) {
+  .rodape-conceitos {
+    grid-template-columns: 1fr;
+  }
+  .rodape-principios {
+    flex-wrap: wrap;
+  }
+  .rodape-principio {
+    flex: 1 1 40%;
+  }
+}
+
+/* ---------- Responsivo ---------- */
+
+@media (max-width: 560px) {
+  .roda { width: 92vmin; height: 92vmin; }
+  .eixo-botao { font-size: 11px; }
+}
+
+/* Ajustes finos para celulares (telas bem estreitas): reduz respiros,
+   evita rolagem horizontal e deixa cartões/popup confortáveis de tocar. */
+@media (max-width: 480px) {
+  .topo { padding: 16px 12px 10px; }
+  .topo-titulo { font-size: clamp(12.7px, 4vw, 16px); }
+  .topo-logo-picaps { height: clamp(78px, 27.2vw, 102px); }
+  .topo-subtitulo { font-size: 11.5px; padding: 0 6px; }
+
+  #app { padding: 8px 10px 40px; }
+
+  .layout-eixos { gap: 18px; }
+
+  .guia-instrucoes { padding: 10px 12px; max-width: 100%; }
+
+  .eixo-cabecalho { padding: 16px 18px; }
+
+  .grade-fatores {
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 12px;
+  }
+
+  .fator-icone-badge { width: 56px; height: 56px; }
+
+  .popup { padding: 22px 16px 18px; border-radius: 14px; }
+  .popup-icone-mini { width: 60px; height: 60px; }
+  .popup-icones-trio { gap: 10px; }
+
+  .rodape-cartao { padding: 14px; flex-direction: column; text-align: center; }
+  /* o cartão dos princípios continua em linha, com quebra (2 em cima, 1
+     embaixo); em coluna, a quebra jogava o 3º princípio para fora da tela */
+  .rodape-principios { flex-direction: row; justify-content: center; row-gap: 14px; }
+  .rodape-principio { flex: 1 1 45%; }
+}
+
+/* background-attachment: fixed é pesado/instável em navegadores móveis
+   (rolagem "engasgada" no iOS Safari); em telas de toque a marca d'água
+   passa a rolar junto com a página normalmente. */
+@media (max-width: 760px), (hover: none) and (pointer: coarse) {
+  html, body { background-attachment: scroll; }
+}
+
+/* Popup com diagnóstico territorial: sem ícones e sem selo ODS no topo */
+.popup.popup-modo-territorio .popup-icones-trio,
+.popup.popup-modo-territorio .popup-ods { display: none; }
+.popup.popup-modo-territorio h3 { margin: 6px 0 12px; padding: 0 32px; }
+
+@media (max-width: 480px) {
+  .territorio-seletor { min-width: 0; width: 100%; }
+  .territorio-barra { width: 100%; padding: 0 12px; box-sizing: border-box; }
+}
+
+/* texto apenas para leitores de tela */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* sem avisos visíveis, a faixa abaixo do seletor não ocupa espaço */
+.territorio-status.territorio-pronto:not(:has(.territorio-selo, .territorio-alerta)) { margin-top: 0; }
