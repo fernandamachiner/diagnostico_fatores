@@ -486,6 +486,9 @@
       badge.style.background = corClara(eixo.cor);
 
       var img = document.createElement("img");
+      // o pino é desenhado em preto e branco; o filtro troca o preto pela
+      // cor do eixo e mantém o branco (ver criarFiltrosCorEixo)
+      img.style.filter = "url(#tinta-eixo-" + eixo.ordem + ")";
       img.src = caminhoIcone(fator.icone);
       img.alt = fator.fator;
       img.loading = "lazy";
@@ -511,6 +514,8 @@
     });
 
     layoutEixos.classList.add("tem-selecao");
+    destacarEixoOds(null);
+    agendarLacos(0);
   }
 
   function pad2(n) {
@@ -744,6 +749,7 @@
 
   function fecharColunaFatores() {
     layoutEixos.classList.remove("tem-selecao");
+    agendarLacos(400);
     botoesEixo.forEach(function (b) {
       b.classList.remove("selecionado");
     });
@@ -753,9 +759,235 @@
 
   btnVoltar.addEventListener("click", fecharColunaFatores);
 
+    // ---------- Filtros de cor dos ícones dos fatores ----------
+  // um filtro SVG por eixo: preto -> cor do eixo (escurecida até ter
+  // contraste com o branco), branco -> branco
+  function criarFiltrosCorEixo() {
+    var ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("width", "0");
+    svg.setAttribute("height", "0");
+    svg.setAttribute("aria-hidden", "true");
+    svg.style.position = "absolute";
+    dados.forEach(function (eixo) {
+      var rgb = hexParaRgb(corFundoComTextoBranco(eixo.cor));
+      if (!rgb) return;
+      var f = document.createElementNS(ns, "filter");
+      f.setAttribute("id", "tinta-eixo-" + eixo.ordem);
+      f.setAttribute("color-interpolation-filters", "sRGB");
+      // engrossa levemente os traços escuros do desenho antes de colorir
+      var m = document.createElementNS(ns, "feMorphology");
+      m.setAttribute("operator", "erode");
+      m.setAttribute("radius", "0.45");
+      f.appendChild(m);
+      var t = document.createElementNS(ns, "feComponentTransfer");
+      [["feFuncR", rgb.r], ["feFuncG", rgb.g], ["feFuncB", rgb.b]].forEach(function (c) {
+        var fn = document.createElementNS(ns, c[0]);
+        fn.setAttribute("type", "table");
+        fn.setAttribute("tableValues", (c[1] / 255).toFixed(3) + " 1");
+        t.appendChild(fn);
+      });
+      f.appendChild(t);
+      svg.appendChild(f);
+    });
+    document.body.appendChild(svg);
+  }
+
+  // ---------- Laços com os ODS (tela inicial) ----------
+
+  // nomes curtos para os selos (o nome oficial vai no title) e cores
+  // oficiais dos ODS; o ODS 18 (Igualdade Étnico-Racial) é o objetivo
+  // adicional adotado pelo Brasil
+  var ODS = {
+    1: ["Erradicação da Pobreza", "Erradicação da Pobreza", "#E5243B"],
+    2: ["Fome Zero", "Fome Zero e Agricultura Sustentável", "#DDA63A"],
+    3: ["Saúde e Bem-Estar", "Saúde e Bem-Estar", "#4C9F38"],
+    4: ["Educação de Qualidade", "Educação de Qualidade", "#C5192D"],
+    5: ["Igualdade de Gênero", "Igualdade de Gênero", "#FF3A21"],
+    6: ["Água e Saneamento", "Água Potável e Saneamento", "#26BDE2"],
+    7: ["Energia Limpa", "Energia Limpa e Acessível", "#FCC30B"],
+    8: ["Trabalho Decente", "Trabalho Decente e Crescimento Econômico", "#A21942"],
+    9: ["Indústria e Inovação", "Indústria, Inovação e Infraestrutura", "#FD6925"],
+    10: ["Redução das Desigualdades", "Redução das Desigualdades", "#DD1367"],
+    11: ["Cidades Sustentáveis", "Cidades e Comunidades Sustentáveis", "#FD9D24"],
+    12: ["Consumo Responsável", "Consumo e Produção Responsáveis", "#BF8B2E"],
+    13: ["Ação Climática", "Ação contra a Mudança Global do Clima", "#3F7E44"],
+    14: ["Vida na Água", "Vida na Água", "#0A97D9"],
+    15: ["Vida Terrestre", "Vida Terrestre", "#56C02B"],
+    16: ["Paz e Justiça", "Paz, Justiça e Instituições Eficazes", "#00689D"],
+    17: ["Parcerias", "Parcerias e Meios de Implementação", "#19486A"],
+    18: ["Igualdade Étnico-Racial", "Igualdade Étnico-Racial", "#6D4C41"]
+  };
+  // em que coluna e em que ordem cada eixo aparece (acompanha a posição
+  // do eixo na roda: 1, 6 e 5 à esquerda; 2, 3 e 4 à direita)
+  var COLUNAS_ODS = { "ods-esq": [1, 6, 5], "ods-dir": [2, 3, 4] };
+  var odsLacos = document.getElementById("ods-lacos");
+  var gruposOds = {}; // ordem do eixo -> elemento do grupo
+
+  function odsDoEixo(eixo) {
+    var vistos = {};
+    eixo.fatores.forEach(function (f) { vistos[+f.ods] = true; });
+    return Object.keys(vistos).map(Number).filter(function (n) { return ODS[n]; })
+      .sort(function (x, y) { return x - y; });
+  }
+
+  function destacarEixoOds(ordem) {
+    Object.keys(gruposOds).forEach(function (k) {
+      gruposOds[k].classList.toggle("destaque", String(k) === String(ordem));
+    });
+    if (!odsLacos) return;
+    odsLacos.classList.toggle("tem-destaque", ordem != null);
+    odsLacos.querySelectorAll("[data-eixo]").forEach(function (el) {
+      el.classList.toggle("destaque", el.getAttribute("data-eixo") === String(ordem));
+    });
+  }
+
+  function montarOds() {
+    var porOrdem = {};
+    dados.forEach(function (e) { porOrdem[e.ordem] = e; });
+    Object.keys(COLUNAS_ODS).forEach(function (idColuna) {
+      var coluna = document.getElementById(idColuna);
+      if (!coluna) return;
+      COLUNAS_ODS[idColuna].forEach(function (ordem) {
+        var eixo = porOrdem[ordem];
+        if (!eixo) return;
+        var grupo = document.createElement("div");
+        grupo.className = "ods-grupo";
+        grupo.setAttribute("data-eixo", ordem);
+        grupo.style.setProperty("--cor-eixo", eixo.cor);
+        grupo.setAttribute("role", "button");
+        grupo.setAttribute("tabindex", "0");
+        grupo.setAttribute("aria-label", "Eixo " + ordem + ": " + eixo.titulo + ". Abrir fatores");
+
+        var titulo = document.createElement("div");
+        titulo.className = "ods-grupo-titulo";
+        titulo.innerHTML = "<b>EIXO " + ordem + "</b> ";
+        titulo.appendChild(document.createTextNode(eixo.titulo));
+        grupo.appendChild(titulo);
+
+        var lista = document.createElement("ul");
+        lista.className = "ods-lista";
+        odsDoEixo(eixo).forEach(function (n) {
+          var li = document.createElement("li");
+          li.className = "ods-chip";
+          li.title = "ODS " + pad2(n) + " - " + ODS[n][1];
+          var num = document.createElement("span");
+          num.className = "ods-num";
+          num.style.background = ODS[n][2];
+          num.textContent = pad2(n);
+          var nome = document.createElement("span");
+          nome.className = "ods-nome";
+          nome.textContent = ODS[n][0];
+          li.appendChild(num);
+          li.appendChild(nome);
+          lista.appendChild(li);
+        });
+        grupo.appendChild(lista);
+
+        var abrir = function () {
+          var b = botoesEixo.filter(function (x) { return x.getAttribute("data-eixo-id") === String(eixo.id); })[0];
+          if (b) b.click();
+        };
+        grupo.addEventListener("click", abrir);
+        grupo.addEventListener("keydown", function (ev) {
+          if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(); }
+        });
+        grupo.addEventListener("mouseenter", function () { ativarZoomEixo(ordem); destacarEixoOds(ordem); });
+        grupo.addEventListener("mouseleave", function () { ativarZoomEixo(eixoSelecionadoOrdem); destacarEixoOds(null); });
+        coluna.appendChild(grupo);
+        gruposOds[ordem] = grupo;
+      });
+    });
+
+    // passar o mouse num eixo da roda destaca os ODS dele
+    botoesEixo.forEach(function (b) {
+      var eixo = dados.filter(function (e) { return String(e.id) === b.getAttribute("data-eixo-id"); })[0];
+      if (!eixo) return;
+      b.addEventListener("mouseenter", function () { destacarEixoOds(eixo.ordem); });
+      b.addEventListener("mouseleave", function () { destacarEixoOds(null); });
+    });
+
+    // faixa do rodapé: todos os ODS presentes nos eixos
+    var faixa = document.getElementById("ods-faixa-lista");
+    if (faixa) {
+      var todos = {};
+      dados.forEach(function (e) { odsDoEixo(e).forEach(function (n) { todos[n] = true; }); });
+      Object.keys(todos).map(Number).sort(function (x, y) { return x - y; }).forEach(function (n) {
+        var li = document.createElement("li");
+        li.style.background = ODS[n][2];
+        li.textContent = pad2(n);
+        li.title = "ODS " + pad2(n) + " - " + ODS[n][1];
+        faixa.appendChild(li);
+      });
+    }
+
+    window.addEventListener("resize", function () { agendarLacos(60); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { agendarLacos(0); });
+    window.addEventListener("load", function () { agendarLacos(0); });
+    agendarLacos(0);
+  }
+
+  var temporizadorLacos = null;
+  function agendarLacos(ms) {
+    clearTimeout(temporizadorLacos);
+    temporizadorLacos = setTimeout(desenharLacos, ms);
+  }
+
+  // linhas curvas de cada selo de ODS até a borda do círculo do eixo
+  function desenharLacos() {
+    if (!odsLacos) return;
+    while (odsLacos.firstChild) odsLacos.removeChild(odsLacos.firstChild);
+    var colEsq = document.getElementById("ods-esq");
+    if (!colEsq || layoutEixos.classList.contains("tem-selecao") ||
+        getComputedStyle(colEsq).display === "none") return;
+    var base = layoutEixos.getBoundingClientRect();
+    var rr = roda.getBoundingClientRect();
+    odsLacos.setAttribute("viewBox", "0 0 " + base.width + " " + base.height);
+    var ns = "http://www.w3.org/2000/svg";
+    var raio = rr.width * 0.14;
+    Object.keys(gruposOds).forEach(function (ordem) {
+      var grupo = gruposOds[ordem];
+      var pos = POSICOES_EIXO[ordem - 1];
+      var cx = rr.left - base.left + rr.width * pos.x / 100;
+      var cy = rr.top - base.top + rr.height * pos.y / 100;
+      var esquerda = grupo.parentNode.id === "ods-esq";
+      var cor = grupo.style.getPropertyValue("--cor-eixo");
+      var g = document.createElementNS(ns, "g");
+      g.setAttribute("data-eixo", ordem);
+      var chips = grupo.querySelectorAll(".ods-chip");
+      var nChips = chips.length;
+      chips.forEach(function (chip, i) {
+        var c = chip.getBoundingClientRect();
+        var ax = (esquerda ? c.right + 8 : c.left - 8) - base.left;
+        var ay = c.top + c.height / 2 - base.top;
+        // ponto de chegada espalhado num arco da borda voltada para a coluna
+        var abertura = Math.min(1.1, 0.12 * nChips);
+        var frac = nChips > 1 ? i / (nChips - 1) - 0.5 : 0;
+        var ang = (esquerda ? Math.PI : 0) + (esquerda ? -1 : 1) * frac * abertura;
+        var ex = cx + raio * Math.cos(ang);
+        var ey = cy + raio * Math.sin(ang);
+        var dx = (ex - ax) * 0.55;
+        var p = document.createElementNS(ns, "path");
+        p.setAttribute("d", "M " + ax.toFixed(1) + " " + ay.toFixed(1) + " C " + (ax + dx).toFixed(1) + " " + ay.toFixed(1) +
+          " " + (ex - dx * 0.6).toFixed(1) + " " + ey.toFixed(1) + " " + ex.toFixed(1) + " " + ey.toFixed(1));
+        p.setAttribute("stroke", cor);
+        g.appendChild(p);
+        var d = document.createElementNS(ns, "circle");
+        d.setAttribute("cx", ax.toFixed(1));
+        d.setAttribute("cy", ay.toFixed(1));
+        d.setAttribute("r", "3.2");
+        d.setAttribute("fill", cor);
+        g.appendChild(d);
+      });
+      odsLacos.appendChild(g);
+    });
+  }
+
   // ---------- Inicialização ----------
 
+  criarFiltrosCorEixo();
   montarRoda();
+  montarOds();
   montarSeletor();
   selecionarTerritorio(territorioInicial(), false);
 })();
