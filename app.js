@@ -775,11 +775,6 @@
       var f = document.createElementNS(ns, "filter");
       f.setAttribute("id", "tinta-eixo-" + eixo.ordem);
       f.setAttribute("color-interpolation-filters", "sRGB");
-      // engrossa levemente os traços escuros do desenho antes de colorir
-      var m = document.createElementNS(ns, "feMorphology");
-      m.setAttribute("operator", "erode");
-      m.setAttribute("radius", "0.45");
-      f.appendChild(m);
       var t = document.createElementNS(ns, "feComponentTransfer");
       [["feFuncR", rgb.r], ["feFuncG", rgb.g], ["feFuncB", rgb.b]].forEach(function (c) {
         var fn = document.createElementNS(ns, c[0]);
