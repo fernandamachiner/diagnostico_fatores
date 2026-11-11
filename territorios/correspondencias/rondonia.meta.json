@@ -1,0 +1,35 @@
+{
+  "territorio": {
+    "id": "rondonia",
+    "nome": "Rondônia",
+    "uf": "RO",
+    "tipo": "unidade federativa (52 municípios)",
+    "rotulo": "Rondônia"
+  },
+  "situacao": {
+    "status": "diagnóstico situacional",
+    "territorio_de_exemplo": false,
+    "aviso": "Os textos referem-se ao estado de Rondônia e, quando indicado, aos seus municípios e regiões de saúde."
+  },
+  "documento_fonte": {
+    "arquivo": "territorios/fontes/Diagnostico_eixos_Rondonia_Matriz_v1.0.2.docx",
+    "titulo": "Diagnóstico Situacional do Estado de Rondônia, Matriz de Fatores v1.0.2",
+    "periodo_referencia": "não declarado como período único; cada dado indica o próprio ano de referência e a escala territorial",
+    "responsaveis": "PICAPS | CoLaboratório CTIS | Fiocruz Brasília",
+    "data_elaboracao": "outubro de 2026",
+    "matriz_declarada_no_documento": "Matriz de Fatores v1.0.2, 150 fatores"
+  },
+  "campos_excluidos_da_abertura_dos_eixos": [
+    "ODS mobilizados"
+  ],
+  "decisoes": [
+    {
+      "data": "2026-11-11",
+      "decisao": "A linha ODS mobilizados da abertura dos eixos é excluída dos dados, pela mesma regra adotada para Campo Grande/MS e para o Distrito Federal; o painel não exibe esse campo. O documento-fonte não foi alterado."
+    },
+    {
+      "data": "2026-11-11",
+      "decisao": "Por decisão da coordenação, a ressalva das notas metodológicas sobre a confirmação de dados obtidos por meio de reportagens e de sistematizações de terceiros (Agência Brasil, InfoAmazonia, Mongabay Latam e análises do Anuário) foi retirada do documento-fonte e, por consequência, das notas metodológicas registradas no arquivo de dados."
+    }
+  ]
+}

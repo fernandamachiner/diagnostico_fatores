@@ -1,0 +1,73 @@
+{
+  "_criterio": "Mesmo critério de Campo Grande/MS e do Distrito Federal. Fontes citadas: conteúdo integral dos parênteses que indicam a origem de um dado (órgão, pesquisa, base, publicação ou imprensa), excluídos parênteses com identificador de fator, apenas ano ou enumerações descritivas. Referências normativas: leis, planos e políticas citados no texto. Todo trecho deve aparecer literalmente no texto do fator.",
+  "parenteses_que_sao_fonte": [
+    "Agevisa com base no Sivep-Malária",
+    "Agevisa, 2025",
+    "Agência Brasil",
+    "Agência Brasil com base na ANTAQ",
+    "Agência Brasil com base no Serviço Geológico do Brasil e na ANTAQ",
+    "Agência Brasil, 2024",
+    "Anuário Brasileiro de Segurança Pública 2026",
+    "Anuário Brasileiro de Segurança Pública 2026, escala estadual",
+    "Comissão Pastoral da Terra",
+    "DATASUS, sistematizado pelo painel Amazônia Legal em Dados e por estudo publicado em periódico científico, escala estadual",
+    "Epidemiologia e Serviços de Saúde, SciELO",
+    "IBGE",
+    "IBGE com base no Censo Escolar",
+    "IBGE, 2025, escala estadual",
+    "IBGE, Censo 2022",
+    "IBGE, Contas Regionais 2023, escala estadual",
+    "IBGE, escala estadual",
+    "IBGE, finanças estaduais, 2025",
+    "INEP",
+    "INEP, escala estadual",
+    "INPE",
+    "INPE, PRODES",
+    "INPE, PRODES 2025",
+    "INPE, TerraBrasilis",
+    "INPE, agosto de 2026",
+    "IQAir, citado pela Prefeitura de Porto Velho",
+    "InfoAmazonia com base no CAMS",
+    "InfoAmazonia, 2025",
+    "Instituto Trata Brasil",
+    "Instituto Trata Brasil, 2023",
+    "Instituto Trata Brasil, Ranking 2025",
+    "Instituto Trata Brasil, base SINISA",
+    "Instituto Trata Brasil, base SINISA 2023",
+    "Ministério Público Federal com base na Agevisa",
+    "Ministério da Integração e do Desenvolvimento Regional, citado pela Agência Brasil",
+    "Ministério da Saúde, Boletim Epidemiológico, escala estadual",
+    "Mongabay Latam, 2026",
+    "PNAD Contínua",
+    "PNAD Contínua, escala estadual",
+    "Prefeitura de Porto Velho e imprensa local",
+    "Prefeitura de Porto Velho, com base no monitoramento de focos",
+    "Serviço Geológico do Brasil",
+    "Serviço Geológico do Brasil, e defesas civis"
+  ],
+  "fontes_no_texto": {},
+  "referencias_normativas": {
+    "E3-F05": [
+      "Lei nº 13.465/2017"
+    ],
+    "E3-F16": [
+      "Política Nacional de Saúde Integral da População Negra"
+    ],
+    "E3-F18": [
+      "Política Nacional de Saúde Integral da População Negra"
+    ],
+    "E4-F03": [
+      "Política Nacional de Práticas Integrativas e Complementares",
+      "Política Nacional de Plantas Medicinais e Fitoterápicos"
+    ],
+    "E4-F11": [
+      "Política Nacional de Educação Ambiental"
+    ],
+    "E4-F25": [
+      "Plano Nacional de Recuperação da Vegetação Nativa"
+    ],
+    "E5-F17": [
+      "Política Nacional Aldir Blanc"
+    ]
+  }
+}
